@@ -41,4 +41,4 @@ for row in ws.iter_rows():
                 print 'Col: ' + str(cell.col_idx)
                 print 'Val: ' + str(cell.value)
 #save workbook
-wb.save(r'D:\abykov\BigProjectFiles\151003 Lethbridge Ecological Inventory\titles_160411\RVMP titles222b.xlsx')
+wb.save(r'D:\abykov\BigProjectFiles\151003 Lethbridge Ecological Inventory\titles_160411\RVMPtitles_160511.xlsx')
