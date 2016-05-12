@@ -4,9 +4,12 @@
 
 #load library
 from openpyxl import load_workbook
+import myhelpers
+import fileLocations
 
 #load workbook to memory
-wb = load_workbook(r'D:\abykov\BigProjectFiles\151003 Lethbridge Ecological Inventory\titles_160411\RVMP titles222.xlsx')
+wbPath = fileLocations.lethbridge_TitleExcel
+wb = load_workbook(wbPath)
 #print wb.get_sheet_names()
 
 #get active worksheet
@@ -41,4 +44,5 @@ for row in ws.iter_rows():
                 print 'Col: ' + str(cell.col_idx)
                 print 'Val: ' + str(cell.value)
 #save workbook
-wb.save(r'D:\abykov\BigProjectFiles\151003 Lethbridge Ecological Inventory\titles_160411\RVMPtitles_160511.xlsx')
+print myhelpers.getNewFilePathWithDateNoSpaces(wbPath)
+wb.save(myhelpers.getNewFilePathWithDateNoSpaces(wbPath))
