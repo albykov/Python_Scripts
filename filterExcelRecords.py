@@ -7,6 +7,12 @@ from openpyxl import load_workbook
 import myhelpers
 import fileLocations
 
+def getShortTitleNameNoSpaces(tn):
+    if len(tn.split('+')) > 1:
+        return tn.split('+')[0].replace(' ', '') + tn.split('+')[1].zfill(3)
+    else:
+        return tn.replace(' ', '')
+
 #load workbook to memory
 wbPath = fileLocations.lethbridge_TitleExcel
 wb = load_workbook(wbPath)
@@ -26,6 +32,7 @@ for row in ws.iter_rows():
             if cell.value is not None:
                 #save it to variable curr_row
                 curr_row = row
+                cell.value = getShortTitleNameNoSpaces(cell.value)
                 #if this cell is None
             elif cell.value is None:
                 #switch to fix it
