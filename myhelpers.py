@@ -4,9 +4,13 @@ def getCurrentDateforFileName():
     import time
     return (time.strftime("%y%m%d"))
 
-def getCurrentDateTimeforFileName():
+def getCurrentDateTimeForFileName():
     import time
     return (time.strftime("%y%m%d%H%M"))
+
+def getCurrentDateTimeWithSecForFileName():
+    import time
+    return (time.strftime("%y%m%d%H%M%S"))
 
 def getNewFilePathWithDateNoSpaces(ffn):
     import os
@@ -16,4 +20,4 @@ def getNewFilePathWithDateNoSpaces(ffn):
     fExt = os.path.splitext(ffn)[1]
     fDir = os.path.dirname(ffn)
 
-    return fDir + '\\' +fn_noExt_NoSpaces + '_' +getCurrentDateTimeforFileName() + fExt
+    return fDir + '\\' +fn_noExt_NoSpaces + '_' +getCurrentDateTimeWithSecForFileName() + fExt
