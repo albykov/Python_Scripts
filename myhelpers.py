@@ -27,14 +27,15 @@ def getFileNameWithNoExtentionAndPath(fn):
     import os
     return os.path.splitext(os.path.basename(fn))[0]
 
-def addNewField (ds, field_type_text, field_name, field_length, field_precision = None, field_alias = None, toOverwtire = False):
+def addNewField (ds, field_type_text, field_name, field_length, field_precision = None, field_alias = None, field_scale = None, field_is_nullable = None, field_is_required = None, toOverwrite = False):
     import arcpy
     if fieldExist(ds, field_name):
-        if toOverwtire:
+        if toOverwrite:
             arcpy.DeleteField_management(ds, [field_name])
 
     #print ds, field_name, field_type_text, field_length
-    arcpy.AddField_management(ds, field_name, field_type_text, "", "", field_length)
+    #arcpy.AddField_management(ds, field_name, field_type_text, "", "", field_length)
+    arcpy.AddField_management(ds, field_name, field_type_text, field_precision, field_scale, field_length, field_alias, field_is_nullable, field_is_required)
 
 def fieldExist(ds, field_name):
     import arcpy
@@ -65,9 +66,28 @@ def renameField(ds, field_name, new_field_name):
         if field.name == field_name:
             field_type_text = str(field.type)
             field_length = field.length
+            field_precision = field.precision
+            field_scale = field.scale
+            field_alias = field.aliasName
+            field_is_nullable = field.isNullable
+            field_is_required = field.required
 
     #adding a copy of field we are going to delete
-    addNewField(ds, field_type_text, new_field_name, field_length, None, None, True)
+    #addNewField(ds, field_type_text, new_field_name, field_length, None, None, True)
+    addNewField(
+        ds
+        , field_type_text
+        , new_field_name
+        , field_length
+
+        , field_precision
+        , field_alias
+        , field_scale
+        , field_is_nullable
+        , field_is_required
+        #, field_domain
+        , True
+    )
 
     #copy data from old field
     arcpy.CalculateField_management(ds, new_field_name, "!"+field_name+"!", "PYTHON_9.3")
