@@ -33,7 +33,15 @@ def mergeDS(ds1, ds2, fields2keep_ds1 = {}, fields2match_ds2 = {}):
     #RENAME FIELDS
     keep_fields = []
     for key in fields2match_ds2.keys():
-        myhelpers.renameField(ds2, fields2match_ds2[key], key)
+        #if field from values is found it will be renamed
+        if myhelpers.renameField(ds2, fields2match_ds2[key], key):
+            pass
+        #if field is not found, creating field from key with Unknown value
+        #else:
+            #if field with key name exists, drop it and put Unknown
+            #if myhelpers.fieldExist(ds2, key):
+
+
         keep_fields.append(key)
 
     keep_fields.append('FROMDS')
@@ -50,41 +58,3 @@ def mergeDS(ds1, ds2, fields2keep_ds1 = {}, fields2match_ds2 = {}):
         , output = myhelpers.getNewFilePathWithDateNoSpaces(ds1)
         , field_mappings="")
     return result
-
-import fileLocations
-
-#PARKLAND
-fields_schema_ds1 = {}
-fields_schema_ds1['NAME'] = 'ADDRESS'
-fields_schema_ds1['OWNERSHIP'] = 'OWNERSHIP2'
-fields_schema_ds1['CLASS'] = 'CLASS'
-fields_schema_ds1['TYPE'] = 'TYPE'
-#fields_schema_ds1['MAINTAINER'] = ''
-
-#VACANTCITYLAND
-fields_schema_ds2 = {}
-fields_schema_ds2['NAME'] = 'NAME'
-fields_schema_ds2['OWNERSHIP'] = 'OWNER'
-fields_schema_ds2['MAINTAINER'] = 'MAINTAINER'
-#fields_schema_ds2['CLASS'] = ''
-#fields_schema_ds2['TYPE'] = ''
-
-result = mergeDS(fileLocations.edm_parkland, fileLocations.edm_vacantcityland, fields_schema_ds1, fields_schema_ds2)
-
-#TURF
-fields_schema_ds3 = {}
-#fields_schema_ds3['NAME'] = ''
-fields_schema_ds3['OWNERSHIP'] = 'OWNER'
-fields_schema_ds3['MAINTAINER'] = 'MAINTAINER'
-fields_schema_ds3['CLASS'] = 'SERVICE_LE'
-fields_schema_ds3['TYPE'] = 'TYPE'
-result = mergeDS(result, fileLocations.edm_turf, {}, fields_schema_ds3)
-
-#NATURAL
-fields_schema_ds4 = {}
-fields_schema_ds4['NAME'] = 'ADDRESS'
-fields_schema_ds4['OWNERSHIP'] = 'OWNER'
-fields_schema_ds4['MAINTAINER'] = 'MAINTAINER'
-#fields_schema_ds4['CLASS'] = ''
-fields_schema_ds4['TYPE'] = 'TYPE'
-result = mergeDS(result, fileLocations.edm_naturalareas, {}, fields_schema_ds4)

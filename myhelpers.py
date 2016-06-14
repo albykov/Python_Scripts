@@ -130,3 +130,4 @@ def renameField(ds, field_name, new_field_name):
 
             #delete old field
             deleteField(ds, None, [field_name])
+    return is_found
