@@ -28,6 +28,7 @@ def getFileNameWithNoExtentionAndPath(fn):
     return os.path.splitext(os.path.basename(fn))[0]
 
 def addNewField (ds, field_type_text, field_name, field_length, field_precision = None, field_alias = None, field_scale = None, field_is_nullable = None, field_is_required = None, toOverwrite = False):
+    #print 'add'
     import arcpy
     if fieldExist(ds, field_name):
         if toOverwrite:
@@ -38,6 +39,7 @@ def addNewField (ds, field_type_text, field_name, field_length, field_precision 
     arcpy.AddField_management(ds, field_name, field_type_text, field_precision, field_scale, field_length, field_alias, field_is_nullable, field_is_required)
 
 def fieldExist(ds, field_name):
+    #print 'fex'
     import arcpy
     field_list = arcpy.ListFields(ds, field_name)
 
@@ -49,48 +51,82 @@ def fieldExist(ds, field_name):
         return False
 
 def deleteField (ds, keep_fields = None, delete_fields = None):
-    import arcpy
+    #print 'del'
+    import arcpy, sys
     fields = arcpy.ListFields(ds)
+
     if keep_fields is not None:
+
+        if 'FID' not in keep_fields:
+            keep_fields.append('FID')
+
+        if 'Shape' not in keep_fields:
+            keep_fields.append('Shape')
+
         dropFields = [x.name for x in fields if x.name not in keep_fields]
-        arcpy.DeleteField_management(ds, dropFields)
+
+        print 'drop fields', dropFields
+
+        if len(dropFields) > 0:
+            arcpy.DeleteField_management(ds, dropFields)
+        else:
+            print 'Nothing to delete'
+        #except:
+            #print sys.exc_info()[0]
     else:
+        keep_fields = []
+
+        if 'FID' not in keep_fields:
+            keep_fields.append('FID')
+
+        if 'Shape' not in keep_fields:
+            keep_fields.append('Shape')
+
         dropFields = [x.name for x in fields if x.name in delete_fields]
-        arcpy.DeleteField_management(ds, dropFields)
+        print 'drop fields2', dropFields
+
+        if len(dropFields) > 0:
+            arcpy.DeleteField_management(ds, dropFields)
+        else:
+            print 'Nothing to delete'
 
 def renameField(ds, field_name, new_field_name):
-    import arcpy
+    if field_name <> new_field_name:
+        #print 'ren'
+        import arcpy
+        fields = arcpy.ListFields(ds)
+        is_found = False
+        for field in fields:
+            if field.name == field_name:
+                is_found = True
+                field_type_text = str(field.type)
+                field_length = field.length
+                field_precision = field.precision
+                field_scale = field.scale
+                field_alias = field.aliasName
+                field_is_nullable = field.isNullable
+                field_is_required = field.required
 
-    fields = arcpy.ListFields(ds)
-    for field in fields:
-        if field.name == field_name:
-            field_type_text = str(field.type)
-            field_length = field.length
-            field_precision = field.precision
-            field_scale = field.scale
-            field_alias = field.aliasName
-            field_is_nullable = field.isNullable
-            field_is_required = field.required
 
-    #adding a copy of field we are going to delete
-    #addNewField(ds, field_type_text, new_field_name, field_length, None, None, True)
-    addNewField(
-        ds
-        , field_type_text
-        , new_field_name
-        , field_length
+        #adding a copy of field we are going to delete
+        #addNewField(ds, field_type_text, new_field_name, field_length, None, None, True)
+        if is_found:
+            addNewField(
+                ds
+                , field_type_text
+                , new_field_name
+                , field_length
+                , field_precision
+                , field_alias
+                , field_scale
+                , field_is_nullable
+                , field_is_required
+                #, field_domain
+                , True
+            )
 
-        , field_precision
-        , field_alias
-        , field_scale
-        , field_is_nullable
-        , field_is_required
-        #, field_domain
-        , True
-    )
+            #copy data from old field
+            arcpy.CalculateField_management(ds, new_field_name, "!"+field_name+"!", "PYTHON_9.3")
 
-    #copy data from old field
-    arcpy.CalculateField_management(ds, new_field_name, "!"+field_name+"!", "PYTHON_9.3")
-
-    #delete old field
-    deleteField(ds, None, [field_name])
+            #delete old field
+            deleteField(ds, None, [field_name])
