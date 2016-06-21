@@ -1,6 +1,6 @@
 __author__ = 'abykov'
 
-def getPercentOf2FCIntersections (fc1, buildings, int_area_field_name = '', int_perc_field_name = '', field4classes = '', classes2intersect = []):
+def getPercentOf2FCIntersections (fc1, buildings, make_a_copy = False, fc1copy = '', int_area_field_name = '', int_perc_field_name = '', field4classes = '', classes2intersect = []):
     import arcpy
 
     #add default locations
@@ -8,21 +8,30 @@ def getPercentOf2FCIntersections (fc1, buildings, int_area_field_name = '', int_
 
     import myhelpers
 
+    #make a copy
+    if make_a_copy:
+        if fc1copy == '':
+            fc1copy = myhelpers.getNewFilePathWithDateNoSpaces(fc1)
+        else:
+            arcpy.Copy_management(fc1, fc1copy)
+    else:
+        fc1copy = fc1
+
    #will add attribute POLY_AREA with area in SquareMeters
     area_field_name = 'POLY_AREA'
     arcpy.AddGeometryAttributes_management(
-        Input_Features=fc1
+        Input_Features=fc1copy
         , Geometry_Properties="AREA"
         , Length_Unit=""
         , Area_Unit="SQUARE_METERS"
         , Coordinate_System="")
 
     #add intersection
-    fc_intersected = myhelpers.getNewFilePathWithDateNoSpaces(fc1)
+    fc_intersected = myhelpers.getNewFilePathWithDateNoSpaces(fc1copy)
     fc_intersected2 = myhelpers.getNewFilePathWithDateNoSpaces(fc_intersected)
 
     arcpy.Intersect_analysis(
-        in_features=[fc1, buildings]
+        in_features=[fc1copy, buildings]
         , out_feature_class = fc_intersected
         , join_attributes="ALL"
         , cluster_tolerance="-1 Unknown"
@@ -63,12 +72,12 @@ def getPercentOf2FCIntersections (fc1, buildings, int_area_field_name = '', int_
     myhelpers.renameField(fc_intersected2, area_field_name, field_name_4area)
 
     #delete filed if exists
-    if myhelpers.fieldExist(fc1, field_name_4area):
-       arcpy.DeleteField_management(fc1, [field_name_4area])
+    if myhelpers.fieldExist(fc1copy, field_name_4area):
+       arcpy.DeleteField_management(fc1copy, [field_name_4area])
 
     #join class and area
     arcpy.JoinField_management(
-        in_data=fc1
+        in_data=fc1copy
         , in_field="FID"
         , join_table=fc_intersected2
         , join_field=join_fieldName_in_intersected
@@ -80,8 +89,8 @@ def getPercentOf2FCIntersections (fc1, buildings, int_area_field_name = '', int_
     else:
         perc_field_name = 'int_perc'
     #calculate ratio\percent
-    myhelpers.addNewField(fc1, "Double", perc_field_name, 20)
-    arcpy.CalculateField_management(fc1, perc_field_name, "(!"+field_name_4area+"!*100)/!"+area_field_name+'!', "PYTHON_9.3")
+    myhelpers.addNewField(fc1copy, "Double", perc_field_name, 20)
+    arcpy.CalculateField_management(fc1copy, perc_field_name, "(!"+field_name_4area+"!*100)/!"+area_field_name+'!', "PYTHON_9.3")
 
     #add field selection with classes
     #add classes list

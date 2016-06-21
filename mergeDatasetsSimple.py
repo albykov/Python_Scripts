@@ -1,9 +1,12 @@
 __author__ = 'abykov'
 
-def mergeDS(ds1, ds2, fields2keep_ds1 = {}, fields2match_ds2 = {}):
+def mergeDS(ds1, ds2, dsresult = None, fields2keep_ds1 = {}, fields2match_ds2 = {}):
     import myhelpers, arcpy
-    #todo: work with a copies of files
     #todo: add default values if doesnt exist
+
+    #making a copy
+    ds1copy = myhelpers.getNewFilePathWithDateNoSpaces(ds1)
+    arcpy.Copy_management(ds1, ds1copy)
 
     #WORK WITH DS1
     #RENAME FIELDS ACCORDING SCHEMA
@@ -14,11 +17,11 @@ def mergeDS(ds1, ds2, fields2keep_ds1 = {}, fields2match_ds2 = {}):
             myhelpers.renameField(ds1, fields2keep_ds1[key], key)
             keep_fields.append(key)
 
+
         keep_fields.append('FROMDS')
 
         #delete rest of the fields
-        #print 'keep field for parkland', keep_fields
-        myhelpers.deleteField(ds1, keep_fields, None)
+        myhelpers.deleteField(ds1copy, keep_fields, None)
 
         #ADD FROMDS FIELD AND FILL IT
         #wont do that since this ds1 should already have fromDS
@@ -27,34 +30,40 @@ def mergeDS(ds1, ds2, fields2keep_ds1 = {}, fields2match_ds2 = {}):
 
     #WORK WITH DS2
     #ADD FROMDS FIELD AND FILL IT
-    myhelpers.addNewField(ds2, 'TEXT', 'FROMDS', '50', None, None, None, None, None, True)
+
+    #making a copy
+    ds2copy = myhelpers.getNewFilePathWithDateNoSpaces(ds2)
+    arcpy.Copy_management(ds2, ds2copy)
+
+    myhelpers.addNewField(ds2copy, 'TEXT', 'FROMDS', '50', None, None, None, None, None, True)
     fromds = myhelpers.getFileNameWithNoExtentionAndPath(ds2)
-    arcpy.CalculateField_management(ds2, 'FROMDS', "'"+fromds+"'", "PYTHON_9.3")
+    arcpy.CalculateField_management(ds2copy, 'FROMDS', "'"+fromds+"'", "PYTHON_9.3")
     #RENAME FIELDS
     keep_fields = []
     for key in fields2match_ds2.keys():
         #if field from values is found it will be renamed
-        if myhelpers.renameField(ds2, fields2match_ds2[key], key):
+        if myhelpers.renameField(ds2copy, fields2match_ds2[key], key):
             pass
         #if field is not found, creating field from key with Unknown value
-        #else:
-            #if field with key name exists, drop it and put Unknown
-            #if myhelpers.fieldExist(ds2, key):
-
 
         keep_fields.append(key)
 
     keep_fields.append('FROMDS')
 
     #delete rest of the fields
-    #print 'keep field for vacantland', keep_fields
-    myhelpers.deleteField(ds2, keep_fields, None)
+    myhelpers.deleteField(ds2copy, keep_fields, None)
 
+    result = dsresult
     #MERGE DATASETS
-    result = myhelpers.getNewFilePathWithDateNoSpaces(ds1)
-    #result = res
+    if dsresult is None:
+        result = myhelpers.getNewFilePathWithDateNoSpacesWithFixes(ds1, 'm_' + myhelpers.getFileNameWithNoExtentionAndPath(ds2))
+    else:
+        result = dsresult
+
+
     arcpy.Merge_management(
-        inputs="'"+ds1+"';'"+ds2+"'"
-        , output = myhelpers.getNewFilePathWithDateNoSpaces(ds1)
+        inputs="'"+ds1copy+"';'"+ds2copy+"'"
+        , output=result
+        #myhelpers.getNewFilePathWithDateNoSpacesWithFixes(ds1, 'm_' + myhelpers.getFileNameWithNoExtentionAndPath(ds2))
         , field_mappings="")
     return result

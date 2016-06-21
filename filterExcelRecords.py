@@ -4,8 +4,10 @@
 
 #load library
 from openpyxl import load_workbook
+
 import myhelpers
-import fileLocations
+from exclude import fileLocations
+
 
 def getShortNameNoSpaces(tn):
     if len(tn.split('+')) > 1:

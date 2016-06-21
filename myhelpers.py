@@ -23,6 +23,22 @@ def getNewFilePathWithDateNoSpaces(full_file_name):
 
     return fDir + '\\' +fn_noExt_NoSpaces + '_' +getCurrentDateTimeWithSecForFileName() + fExt
 
+def getNewFilePathWithDateNoSpacesWithFixes(full_file_name, prefix = None, postfix = None):
+    import os
+    pref = ''
+    postf = ''
+    if prefix is not None:
+        pref = prefix
+    if postfix is not None:
+        postf = prefix
+    fn_noExt = getFileNameWithNoExtentionAndPath(full_file_name)
+    #os.path.splitext(os.path.basename(ffn))[0]
+    fn_noExt_NoSpaces = fn_noExt.replace(' ', '')
+    fExt = os.path.splitext(full_file_name)[1]
+    fDir = os.path.dirname(full_file_name)
+    return fDir + '\\' + pref +fn_noExt_NoSpaces + postf +'_' +getCurrentDateTimeWithSecForFileName() + fExt
+
+
 def getFileNameWithNoExtentionAndPath(fn):
     import os
     return os.path.splitext(os.path.basename(fn))[0]
@@ -91,6 +107,7 @@ def deleteField (ds, keep_fields = None, delete_fields = None):
             print 'Nothing to delete'
 
 def renameField(ds, field_name, new_field_name):
+    is_found = False
     if field_name <> new_field_name:
         #print 'ren'
         import arcpy
