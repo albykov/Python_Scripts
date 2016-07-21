@@ -1,3 +1,5 @@
+__author__ = 'abykov'
+
 import arcpy
 
 def createPolylineFromXY(xy_coordinates, result_name, spatial_reference = None):
@@ -55,7 +57,7 @@ def createPolylineFromXY(xy_coordinates, result_name, spatial_reference = None):
     del feat
     del cursor
 
-def readVertices(in_fc, out_fc):
+def createPolylineFromPolygon(in_fc, out_fc):
     xy_coordinates = []
 
     spatialReference = arcpy.Describe(in_fc).spatialReference
@@ -71,13 +73,8 @@ def readVertices(in_fc, out_fc):
     createPolylineFromXY(xy_coordinates, out_fc, spatialReference)
 
 def main(in_fc, out_fc):
-    readVertices(in_fc, out_fc)
+    createPolylineFromPolygon(in_fc, out_fc)
 
 in_fc = r'D:\TEMP\testSquare.shp'
 out_fc = r"D:\TEMP\CCTemp.gdb\testSquareLines"
 main(in_fc, out_fc)
-
-# SR = arcpy.Describe(in_fc).spatialReference
-# # Create NumPy array from input feature class
-# array = arcpy.da.FeatureClassToNumPyArray(in_fc,["SHAPE@XY"], spatial_reference=SR, explode_to_points=True)
-# print array
