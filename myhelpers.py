@@ -12,14 +12,19 @@ def getCurrentDateTimeWithSecForFileName():
     import time
     return (time.strftime("%y%m%d%H%M%S"))
 
-def getNewFilePathWithDateNoSpaces(full_file_name):
+def getNewFilePathWithDateNoSpaces(full_file_name, def_folder = None):
     import os
 
+
+    if def_folder is not None:
+        fDir = def_folder
+    else:
+        fDir = os.path.dirname(full_file_name)
     fn_noExt = getFileNameWithNoExtentionAndPath(full_file_name)
     #os.path.splitext(os.path.basename(ffn))[0]
     fn_noExt_NoSpaces = fn_noExt.replace(' ', '')
     fExt = os.path.splitext(full_file_name)[1]
-    fDir = os.path.dirname(full_file_name)
+    #fDir = os.path.dirname(full_file_name)
 
     return fDir + '\\' +fn_noExt_NoSpaces + '_' +getCurrentDateTimeWithSecForFileName() + fExt
 
@@ -148,3 +153,9 @@ def renameField(ds, field_name, new_field_name):
             #delete old field
             deleteField(ds, None, [field_name])
     return is_found
+
+def createNewFolder(folder_name, overwrite = False):
+    import os
+    if not overwrite:
+        if not os.path.exists(folder_name):
+            os.makedirs(folder_name)

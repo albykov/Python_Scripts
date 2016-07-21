@@ -1,7 +1,11 @@
 __author__ = 'abykov'
 
-def mergeDS(ds1, ds2, dsresult = None, fields2keep_ds1 = {}, fields2match_ds2 = {}):
+def mergeDS(ds1, ds2, dsresult = None, fields2keep_ds1 = {}, fields2match_ds2 = {}, is_overlapping = False):
     import myhelpers, arcpy
+
+    #printing datasets and function
+    print 'Merging on ' + myhelpers.getFileNameWithNoExtentionAndPath(ds1) + ' and ' + myhelpers.getFileNameWithNoExtentionAndPath(ds2)
+
     #todo: add default values if doesnt exist
 
     #making a copy
@@ -61,9 +65,29 @@ def mergeDS(ds1, ds2, dsresult = None, fields2keep_ds1 = {}, fields2match_ds2 = 
         result = dsresult
 
 
-    arcpy.Merge_management(
-        inputs="'"+ds1copy+"';'"+ds2copy+"'"
-        , output=result
-        #myhelpers.getNewFilePathWithDateNoSpacesWithFixes(ds1, 'm_' + myhelpers.getFileNameWithNoExtentionAndPath(ds2))
-        , field_mappings="")
+    if is_overlapping:
+        #merge onooverlapping
+
+        ds1copy2 = myhelpers.getNewFilePathWithDateNoSpaces(ds1copy)
+
+        arcpy.Erase_analysis(
+            in_features=ds1copy
+            , erase_features=ds2copy
+            , out_feature_class=ds1copy2
+            , cluster_tolerance="")
+
+        arcpy.Merge_management(
+            inputs="'"+ds1copy2+"';'"+ds2copy+"'"
+            , output=result
+            #myhelpers.getNewFilePathWithDateNoSpacesWithFixes(ds1, 'm_' + myhelpers.getFileNameWithNoExtentionAndPath(ds2))
+            , field_mappings="")
+    else:
+        #merge overlaping features
+        arcpy.Merge_management(
+            inputs="'"+ds1copy+"';'"+ds2copy+"'"
+            , output=result
+            #myhelpers.getNewFilePathWithDateNoSpacesWithFixes(ds1, 'm_' + myhelpers.getFileNameWithNoExtentionAndPath(ds2))
+            , field_mappings="")
+
+    print 'Merging is Done... ' + result
     return result
