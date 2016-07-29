@@ -62,12 +62,9 @@ def createPolylineFromPolygon(in_fc, out_fc):
 
     spatialReference = arcpy.Describe(in_fc).spatialReference
 
-    for feature in arcpy.da.SearchCursor(in_fc,["OID@" ,"SHAPE@", "SHAPE@WKT"]):
-        #print 'f: '+ str(feature[0])
-        #print 's: '+ str(feature[2])
+    for feature in arcpy.da.SearchCursor(in_fc,["OID@" ,"SHAPE@"]):
         for vertices in feature[1]:
             for vertex in vertices:
-                #print str(vertex).split(" ")[0:2]
                 xy_coordinates.append(str(vertex).split(" ")[0:2])
 
     createPolylineFromXY(xy_coordinates, out_fc, spatialReference)
