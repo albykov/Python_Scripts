@@ -11,6 +11,16 @@ def printout(msg):
     print msg
     arcpy.AddMessage(msg)
 
+def o2eraseRasterFromRaster(raster_to_delete_from, raster_to_be_deleted, result_path):
+    import arcpy
+    from arcpy.sa import *
+
+    s =Raster(raster_to_delete_from)
+    g =Raster(raster_to_be_deleted)
+
+    result = SetNull(~IsNull(g), s)
+    result.save(result_path)
+
 def o2erase_vector(in_feature, clip_feature, res_path = None):
     print '----'
     print 'in_feature:' + in_feature
