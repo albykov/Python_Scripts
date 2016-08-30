@@ -41,11 +41,17 @@
     <Compile Include="selectby10k.py" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="eraseTool" />
-    <Folder Include="exclude" />
+    <InterpreterReference Include="{7225da8f-8f8a-418a-b56c-b817c7894033}\2.7" />
   </ItemGroup>
   <ItemGroup>
-    <InterpreterReference Include="{7225da8f-8f8a-418a-b56c-b817c7894033}\2.7" />
+    <Folder Include="eraseTool\" />
+    <Folder Include="exclude\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="eraseTool\misc.pyc" />
+    <Content Include="eraseTool\o2erase.pyc" />
+    <Content Include="exclude\RVMPtitles.xlsx" />
+    <Content Include="exclude\Untitled.mxd" />
   </ItemGroup>
   <Import Project="$(PtvsTargetsFile)" Condition="Exists($(PtvsTargetsFile))" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="!Exists($(PtvsTargetsFile))" />
