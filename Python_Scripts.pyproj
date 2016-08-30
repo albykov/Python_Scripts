@@ -27,10 +27,6 @@
     <Compile Include="eraseTool\o2erase.py" />
     <Compile Include="eraseTool\o2erase_raster.py" />
     <Compile Include="eraseTool\o2erase_vector.py" />
-    <Compile Include="exclude\edmonton_MergeRun.py" />
-    <Compile Include="exclude\fileLocations.py" />
-    <Compile Include="exclude\test.py" />
-    <Compile Include="exclude\__init__.py" />
     <Compile Include="filterExcelRecords.py" />
     <Compile Include="mergeDatasets.py" />
     <Compile Include="mergeDatasetsSimple.py" />
@@ -45,13 +41,10 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="eraseTool\" />
-    <Folder Include="exclude\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="eraseTool\misc.pyc" />
     <Content Include="eraseTool\o2erase.pyc" />
-    <Content Include="exclude\RVMPtitles.xlsx" />
-    <Content Include="exclude\Untitled.mxd" />
   </ItemGroup>
   <Import Project="$(PtvsTargetsFile)" Condition="Exists($(PtvsTargetsFile))" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="!Exists($(PtvsTargetsFile))" />
