@@ -1,5 +1,71 @@
 __author__ = 'abykov'
 
+
+def clipRasterByPolygon(raster_path, polygon_path, output_path = None):
+    polygon_extent = arcpy.Describe(polygon_path).extent
+    clip_extent = "%f %f %f %f" % (
+        polygon_extent.XMin,
+        polygon_extent.YMin,
+        polygon_extent.XMax,
+        polygon_extent.YMax
+    )
+    #print clip_extent
+
+    if output_path is None:
+        f_dir = os.path.dirname(full_file_name)
+        fn_noExt = fExt = os.path.splitext(full_file_name)[0]
+        f_ext = os.path.splitext(full_file_name)[1]
+        output_path = f_dir + '\\' + fn_noExt + '1.' + f_ext
+
+    arcpy.Clip_management(
+        raster_path
+        , clip_extent
+        , output_path
+        , polygon_path
+        , "-9999"
+        , "ClippingGeometry"
+        , "MAINTAIN_EXTENT"
+    )
+    return output_path
+
+def getSquareBuffer (feature_class_path, buffer_size_in_m, output_path = None):
+    import arcpy, os
+    arcpy.env.overwriteOutput = True
+    fc_desc = arcpy.Describe(feature_class_path)
+    arcpy.env.outputCoordinateSystem = fc_desc.spatialReference
+
+    fc = output_path
+    arcpy.CreateFeatureclass_management(
+        os.path.dirname(output_path),
+        os.path.basename(output_path),
+        "POLYLINE")
+    cursor = arcpy.da.InsertCursor(fc, ["SHAPE@"])
+    array = arcpy.Array(
+        [
+            arcpy.Point(fc_desc.extent.XMin - buffer_size_in_m, fc_desc.extent.YMin - buffer_size_in_m),
+            arcpy.Point(fc_desc.extent.XMin - buffer_size_in_m, fc_desc.extent.YMax + buffer_size_in_m),
+            arcpy.Point(fc_desc.extent.XMax + buffer_size_in_m, fc_desc.extent.YMax + buffer_size_in_m),
+            arcpy.Point(fc_desc.extent.XMax + buffer_size_in_m, fc_desc.extent.YMin - buffer_size_in_m),
+            arcpy.Point(fc_desc.extent.XMin - buffer_size_in_m, fc_desc.extent.YMin - buffer_size_in_m)
+        ]
+    )
+    polyline = arcpy.Polyline(array)
+    cursor.insertRow([polyline])
+    del cursor
+    return output_path
+
+def getAvgLengthForAllShapes(feature_class_path):
+    with arcpy.da.SearchCursor(feature_class_path, 'SHAPE@') as rows:
+        length_sum = 0
+        rows_num = 0
+        for row in rows:
+            length_sum += row[0].getLength('PLANAR', 'METERS')
+            rows_num += 1
+            #print rows_num, length_sum
+        result = length_sum//rows_num
+        print 'average = ', result
+        return result
+
 def getCurrentDateforFileName():
     import time
     return (time.strftime("%y%m%d"))
@@ -43,6 +109,72 @@ def getNewFilePathWithDateNoSpacesWithFixes(full_file_name, prefix = None, postf
     fDir = os.path.dirname(full_file_name)
     return fDir + '\\' + pref +fn_noExt_NoSpaces + postf +'_' +getCurrentDateTimeWithSecForFileName() + fExt
 
+def o2eraseRasterFromRaster(raster_to_delete_from, raster_to_be_deleted, result_path):
+    import arcpy
+    from arcpy.sa import *
+
+    s =Raster(raster_to_delete_from)
+    g =Raster(raster_to_be_deleted)
+
+    result = SetNull(~IsNull(g), s)
+    result.save(result_path)
+
+def checkGDB(gdb_path, create_if_doesnt_exists = False):
+    import os
+    if not arcpy.Exists(gdb_path):
+        result = False
+        if create_if_doesnt_exists:
+            arcpy.CreateFileGDB_management(
+                os.path.dirname(gdb_path),
+                os.path.splitext(os.path.basename(gdb_path))[0]
+                )
+    else:
+        result = True
+    return result
+
+def getRasterSide(raster_path, side, output_raster_path = None):
+    raster = arcpy.Raster(raster_path)
+    arcpy.env.overwriteOutput = True
+    arcpy.env.outputCoordinateSystem = raster.spatialReference
+    import os
+
+    if side in ['south', 'bottom']:
+        lowerLeft = arcpy.Point(raster.extent.XMin, raster.extent.YMin)
+        numpy_raster = arcpy.RasterToNumPyArray(raster, lowerLeft, raster.width, 1)
+        raster_from_numpy = arcpy.NumPyArrayToRaster(numpy_raster, lowerLeft, raster.meanCellHeight)
+    elif side in ['north', 'top']:
+            lowerLeft = arcpy.Point(
+                raster.extent.XMin,
+                raster.extent.YMax - raster.meanCellHeight
+            )
+            numpy_raster = arcpy.RasterToNumPyArray(raster, lowerLeft, raster.width, 1)
+            raster_from_numpy = arcpy.NumPyArrayToRaster(numpy_raster, lowerLeft, raster.meanCellHeight)
+    elif side in ['east', 'right']:
+        lowerLeft = arcpy.Point(
+            raster.extent.XMax - raster.meanCellWidth,
+            raster.extent.YMin
+        )
+        numpy_raster = arcpy.RasterToNumPyArray(raster, lowerLeft, 1, raster.height)
+        raster_from_numpy = arcpy.NumPyArrayToRaster(numpy_raster, lowerLeft, raster.meanCellHeight)
+    elif side in ['west', 'left']:
+        lowerLeft = arcpy.Point(
+            raster.extent.XMin,
+            raster.extent.YMin
+        )
+        numpy_raster = arcpy.RasterToNumPyArray(raster, lowerLeft, 1, raster.height)
+        raster_from_numpy = arcpy.NumPyArrayToRaster(numpy_raster, lowerLeft, raster.meanCellHeight)
+
+    else:
+        print 'ERROR in GetRasterSide'
+        return None
+
+    if output_raster_path is None:
+        f_dir = os.path.dirname(raster_path)
+        fn_noExt = os.path.splitext(os.path.basename(raster_path))[0]
+        fn_Ext = os.path.splitext(os.path.basename(raster_path))[1]
+        output_raster_path = f_dir+'//'+fn_noExt+'_'+side+fn_Ext
+    raster_from_numpy.save(output_raster_path)
+    return output_raster_path
 
 def getFileNameWithNoExtentionAndPath(fn):
     import os

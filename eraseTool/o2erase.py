@@ -15,8 +15,8 @@ def o2eraseRasterFromRaster(raster_to_delete_from, raster_to_be_deleted, result_
     import arcpy
     from arcpy.sa import *
 
-    s =Raster(raster_to_delete_from)
-    g =Raster(raster_to_be_deleted)
+    s = Raster(raster_to_delete_from)
+    g = Raster(raster_to_be_deleted)
 
     result = SetNull(~IsNull(g), s)
     result.save(result_path)
