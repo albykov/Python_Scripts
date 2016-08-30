@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{37a9afd5-05ab-43f8-8fb0-8a6cc9770fe7}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>dbf-convert.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId>{7225da8f-8f8a-418a-b56c-b817c7894033}</InterpreterId>
+    <InterpreterVersion>2.7</InterpreterVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+    <PtvsTargetsFile>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="dbf-convert.py" />
+    <Compile Include="eraseTool\arcgis_liceses_check.py" />
+    <Compile Include="eraseTool\misc.py" />
+    <Compile Include="eraseTool\o2erase.py" />
+    <Compile Include="eraseTool\o2erase_raster.py" />
+    <Compile Include="eraseTool\o2erase_vector.py" />
+    <Compile Include="exclude\edmonton_MergeRun.py" />
+    <Compile Include="exclude\fileLocations.py" />
+    <Compile Include="exclude\test.py" />
+    <Compile Include="exclude\__init__.py" />
+    <Compile Include="filterExcelRecords.py" />
+    <Compile Include="mergeDatasets.py" />
+    <Compile Include="mergeDatasetsSimple.py" />
+    <Compile Include="myhelpers.py" />
+    <Compile Include="O2CreateLineFromPolygon.py" />
+    <Compile Include="percentOfIntersection.py" />
+    <Compile Include="readTXTfileWriteNew.py" />
+    <Compile Include="selectby10k.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="eraseTool" />
+    <Folder Include="exclude" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="{7225da8f-8f8a-418a-b56c-b817c7894033}\2.7" />
+  </ItemGroup>
+  <Import Project="$(PtvsTargetsFile)" Condition="Exists($(PtvsTargetsFile))" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="!Exists($(PtvsTargetsFile))" />
+</Project>
